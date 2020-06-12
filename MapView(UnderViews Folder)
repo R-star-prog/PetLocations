@@ -1,0 +1,78 @@
+//
+//  MapView.swift
+//  PetLocationsClose
+//
+//  Created by Rayo Belihomji on 5/27/20.
+//  Copyright © 2020 Rayo Belihomji. All rights reserved.
+//
+
+import Foundation
+import SwiftUI
+import MapKit
+
+class Coordinator : NSObject, MKMapViewDelegate{
+    
+    var control : MapView
+    //Constructor
+    init( _ control : MapView){
+        self.control = control
+    }
+    //Zoom in and out of location
+  
+    
+
+    func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
+        if views.first != nil{
+            if  views.first?.annotation != nil{
+                if views.first?.annotation is MKUserLocation{
+                //Responsible for setting the region(Zooming in and out)
+                    mapView.setRegion(MKCoordinateRegion( center: views.first!.annotation!.coordinate, latitudinalMeters: 10000, longitudinalMeters: 10000), animated: true)
+                    
+                }
+            }
+        }
+    }
+
+
+
+
+}
+
+
+
+struct MapView : UIViewRepresentable {
+    
+    let landMarks: [LandMark]
+    
+    func updateUIView(_ uiView: MKMapView, context: UIViewRepresentableContext<MapView>) {
+        
+        updateAnnotations(from: uiView)
+        
+    }
+    
+    
+    func makeUIView(context: Context) -> MKMapView {
+        let mapView = MKMapView()
+        mapView.showsUserLocation = true
+        
+        mapView.delegate = context.coordinator
+        
+        return mapView
+  
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+        
+    }
+   //Updates the annotations
+    private func updateAnnotations( from mapView : MKMapView){
+        mapView.removeAnnotations(mapView.annotations)
+        let annotations = self.landMarks.map(LandMarkAnnotations.init)
+        mapView.addAnnotations(annotations)
+        
+    }
+    
+}
+
+
